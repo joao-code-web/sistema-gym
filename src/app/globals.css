@@ -15,7 +15,25 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: black;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+
+@media screen and (max-width: 600px) {
+    .as {
+      width: 100%;
+    }
+  
+}
+
+@media screen and (max-width: 400px) {
+  
+    .ab {
+      flex-direction: column;
+    }
+
+    .ab button {
+      width: 200px;
+    }
 }
