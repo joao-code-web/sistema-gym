@@ -14,12 +14,6 @@ interface MesesTypes {
   data: Date;
 }
 
-interface ClientTypes {
-  _id: string;
-  nome: string;
-  image: string;
-}
-
 
 interface PagamentoTypes {
   _id: string;
@@ -30,7 +24,6 @@ interface PagamentoTypes {
 
 export default function Home() {
   // Estados
-  const [clients, setClients] = useState<ClientTypes[]>([]);
   const [meses, setMeses] = useState<MesesTypes[]>([]);
   const [pagamentosPorMes, setPagamentosPorMes] = useState<Record<string, PagamentoTypes[]>>({});
   const [isFormMesVisible, setFormMesVisible] = useState(false);
@@ -45,11 +38,6 @@ export default function Home() {
   const [totalSaidas, setTotalSaidas] = useState(0);
   const [total, setTotal] = useState(0);
 
-
-  const mesesNomes = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ];
 
   // Função para buscar meses
   const getMeses = async () => {
@@ -116,7 +104,7 @@ export default function Home() {
 
   }, []);
 
-  // useEffect para buscar pagamentos sempre que os meses forem atualizados
+ 
   useEffect(() => {
     if (meses.length > 0) {
       getPagamentosPorMes();
