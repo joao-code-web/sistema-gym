@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -21,19 +24,19 @@ body {
 
 
 @media screen and (max-width: 600px) {
-    .as {
-      width: 100%;
-    }
-  
+  .as {
+    width: 100%;
+  }
+
 }
 
 @media screen and (max-width: 400px) {
-  
-    .ab {
-      flex-direction: column;
-    }
 
-    .ab button {
-      width: 200px;
-    }
+  .ab {
+    flex-direction: column;
+  }
+
+  .ab button {
+    width: 200px;
+  }
 }

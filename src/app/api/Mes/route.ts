@@ -3,7 +3,7 @@ import connect from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
 // Função para criar a resposta com status
-const createResponse = (message: string, status: number, data?: any) => {
+const createResponse = (message: string, status: number, data?: unknown) => {
     return NextResponse.json({ message, data }, { status });
 }
 

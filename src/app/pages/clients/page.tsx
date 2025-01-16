@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
@@ -11,7 +12,7 @@ interface ClientTypes {
     image: string;
 }
 
-export default function ClientList() {
+export default function PageClient() {
     const [clients, setClients] = useState<ClientTypes[]>([]);
     const [filteredClients, setFilteredClients] = useState<ClientTypes[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -225,10 +226,12 @@ export default function ClientList() {
                             className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
                         >
                             <Link href={`/pages/client/${client._id}`}>
-                                <img
+                                <Image
                                     src={client.image || "https://via.placeholder.com/150"}
                                     alt={client.nome}
                                     className="w-32 h-32 object-cover rounded-full mx-auto"
+                                    width={200}
+                                    height={200}
                                 />
                                 <h3 className="text-xl font-semibold text-center mt-4">{client.nome}</h3>
 

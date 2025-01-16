@@ -4,6 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Para suporte ao português (Brasil)
+import Image from "next/image";
 
 interface ClientTypes {
     _id: string;
@@ -59,10 +60,12 @@ export default function pageClient({ id }: { id: string }) {
             {client ? (
                 <div className="rounded-lg p-6 max-w-md w-full bg-white shadow-lg transform transition duration-300 hover:scale-105">
                     <div className="flex flex-col items-center">
-                        <img
+                        <Image
                             src={client.image}
                             alt={client.nome}
                             className="w-24 h-24 rounded-full shadow-md mb-4 border-4 border-blue-500"
+                            width={200}
+                            height={200}
                         />
                         <h1 className="text-2xl font-bold text-gray-800">{client.nome}</h1>
 
