@@ -1,12 +1,11 @@
 import React from "react";
-import PageClient from "./PageClient"; // Importa o componente cliente
+import PageClient from "./PageClient";
+import type { PageProps } from "../../../types/page"; // Ajuste o caminho de importação conforme necessário
 
-interface PageProps {
-    params: { id: string };
-}
-
-// Corrigir o tipo de retorno da função assíncrona
-export default function Page({ params }: PageProps) {
-    const { id } = params; 
+async function Page({ params }: PageProps) {
+    const resolvedParams = await params; // Resolve a promise, se necessário
+    const { id } = resolvedParams || {}; // Garante que id seja extraído corretamente
     return <PageClient id={id} />;
 }
+
+export default Page;
