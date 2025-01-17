@@ -22,7 +22,7 @@ interface PagamentoTypes {
     data: string;
 }
 
-export default function Mes({ id }: { id: string }) {
+export default function PageClient({ id }: { id: string }) {
     const [mes, setMes] = useState<MesesTypes | null>(null);
     const [clients, setClients] = useState<ClientTypes[]>([]);
     const [selectedClient, setSelectedClient] = useState<string | null>(null);
