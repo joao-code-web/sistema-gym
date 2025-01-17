@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp, FaMoneyBillWave } from "react-icons/fa";
 
 import { format } from "date-fns";
@@ -49,7 +49,15 @@ export default function Home() {
     }
   };
 
-  const getPagamentosPorMes = async () => {
+
+
+  // useEffect para buscar meses
+  useEffect(() => {
+    getMeses();
+
+  }, []);
+
+  const getPagamentosPorMes = useCallback(async () => {
     try {
       const pagamentosPromises = meses.map(async (mes) => {
         const response = await axios.get(`/api/Pagamentos`, {
@@ -72,22 +80,19 @@ export default function Home() {
       let total = 0;
 
       Object.values(pagamentosMap).forEach((pagamentos) => {
-        if (Array.isArray(pagamentos)) { // Verifica se 'pagamentos' é um array
+        if (Array.isArray(pagamentos)) {
           pagamentos.forEach((pagamento) => {
-            if (pagamento && typeof pagamento.valor === 'number') { // Valida se 'pagamento.valor' é um número
+            if (pagamento && typeof pagamento.valor === 'number') {
               if (pagamento.valor > 0) {
-                totalEntradasTemp += pagamento.valor; // Soma os valores positivos às entradas
+                totalEntradasTemp += pagamento.valor;
               } else {
-                totalSaidasTemp += pagamento.valor; // Soma os valores negativos às saídas
+                totalSaidasTemp += pagamento.valor;
               }
             }
-            total = totalEntradasTemp + totalSaidasTemp
+            total = totalEntradasTemp + totalSaidasTemp;
           });
         }
       });
-
-
-
 
       setTotalEntradas(totalEntradasTemp);
       setTotalSaidas(totalSaidasTemp);
@@ -95,22 +100,13 @@ export default function Home() {
     } catch (error) {
       console.error("Erro ao buscar pagamentos:", error);
     }
-  };
+  }, [meses]); // Dependência: 'meses'
 
-
-  // useEffect para buscar meses
-  useEffect(() => {
-    getMeses();
-
-  }, []);
-
- 
   useEffect(() => {
     if (meses.length > 0) {
       getPagamentosPorMes();
-
     }
-  }, [meses]);
+  }, [meses, getPagamentosPorMes]); // Inclui 'getPagamentosPorMes' como dependência
 
   // Submissão do formulário para adicionar mês
   const handleMesFormSubmit = async (e: React.FormEvent) => {

@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { FaArrowUp } from "react-icons/fa";
 import { IoPeopleSharp } from "react-icons/io5";
+import Image from "next/image";
 
 interface MesesTypes {
     _id: string;
@@ -36,11 +36,7 @@ export default function Mes({ id }: { id: string }) {
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
 
-    useEffect(() => {
-        getMesId(id);
-        getClients();
-        getPagamentos();
-    }, [id]);
+
 
     const getMesId = async (id: string) => {
         try {
@@ -60,20 +56,27 @@ export default function Mes({ id }: { id: string }) {
         }
     };
 
-    const getPagamentos = async () => {
+    const getPagamentos = useCallback(async () => {
         try {
             const response = await axios.get(`/api/Pagamentos?idMes=${id}`);
             setPagamentos(response.data);
         } catch (error) {
-            console.error("Erro ao buscar os pagamentos:", error);
+            console.error('Erro ao buscar os pagamentos:', error);
         }
-    };
+    }, [id]); // Adicione `id` como dependência, pois ela é usada na URL.
+
+    useEffect(() => {
+        getMesId(id);
+        getClients();
+        getPagamentos();
+    }, [id, getPagamentos]);
+
 
     const deletePagamentos = async (idPagamento: string, idClient: string,) => {
         try {
-            let confirm = window.confirm("Deseja excluir esse pagamento?")
+            const confirm = window.confirm("Deseja excluir esse pagamento?")
             if (!confirm) return;
-            const response = await axios.delete(`/api/Pagamentos`, {
+            await axios.delete(`/api/Pagamentos`, {
                 params: { idPagamento: idPagamento, idClient: idClient }
             })
             getPagamentos();
@@ -85,8 +88,8 @@ export default function Mes({ id }: { id: string }) {
     const editarPagamentos = async (idPagamento: string, idClient: string) => {
         try {
             // Solicitar o novo valor e a nova data ao usuário
-            let novoValor = window.prompt("Digite o novo valor do pagamento:");
-            let novaData = window.prompt("Digite a nova data (02/02/2020):");
+            const novoValor = window.prompt("Digite o novo valor do pagamento:");
+            const novaData = window.prompt("Digite a nova data (02/02/2020):");
 
             // Fazer a requisição PUT para a API
             await axios.put(`/api/Pagamentos`, {
@@ -120,7 +123,7 @@ export default function Mes({ id }: { id: string }) {
 
         if (selectedClient && valor) {
             try {
-                const response = await axios.post(
+                await axios.post(
                     `/api/Pagamentos?id=${selectedClient}&idMes=${id}`,
                     { valor: valor }
                 );
@@ -196,10 +199,12 @@ export default function Mes({ id }: { id: string }) {
                                     onClick={() => handleClientSelect(client)}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <img
+                                        <Image
                                             src={client.image}
                                             alt={client.nome}
                                             className="w-8 h-8 rounded-full object-cover"
+                                            width={300}
+                                            height={200}
                                         />
                                         <span>{client.nome}</span>
                                     </div>
@@ -268,10 +273,12 @@ export default function Mes({ id }: { id: string }) {
                                         >
                                             <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
                                                 <div className="flex items-center gap-3">
-                                                    <img
+                                                    <Image
                                                         src={client ? client.image : '/default-avatar.png'}
                                                         alt={client ? client.nome : 'Imagem não disponível'}
                                                         className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
+                                                        width={300}
+                                                        height={200}
                                                     />
                                                     <span className="text-lg font-semibold">
                                                         {client ? client.nome : 'Cliente não encontrado'}

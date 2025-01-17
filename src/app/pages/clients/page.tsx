@@ -36,7 +36,7 @@ export default function PageClient() {
 
     const deleteClient = async (id: string, nome: string) => {
         try {
-            let confirmation = window.confirm(`Tem certeza que deseja excluir ${nome}`);
+            const confirmation = window.confirm(`Tem certeza que deseja excluir ${nome}`);
             if (!confirmation) return;
             await axios.delete(`/api/Client`, {
                 params: { id: id },
