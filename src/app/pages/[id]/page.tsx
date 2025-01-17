@@ -1,5 +1,5 @@
 import React from "react";
-import PageClient from "./PageClient";
+import PageClient from "../pagesClients/PageClient1";
 import type { PageProps } from "../../../types/page"; // Ajuste o caminho de importação conforme necessário
 
 async function Page({ params }: PageProps) {

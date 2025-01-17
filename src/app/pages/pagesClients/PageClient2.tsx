@@ -19,7 +19,7 @@ interface PagamentoTypes {
     data: string;
 }
 
-const PageClient = ({ id }: { id: string }) => {
+export default function PageClient({ id }: { id: string })  {
     const [client, setClient] = useState<ClientTypes | null>(null);
     const [pagamentos, setPagamentos] = useState<PagamentoTypes[]>([]);
 
@@ -114,5 +114,3 @@ const PageClient = ({ id }: { id: string }) => {
         </div>
     );
 };
-
-export default PageClient;
