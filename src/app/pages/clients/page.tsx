@@ -245,23 +245,23 @@ export default function PageClient() {
                                     height={200}
                                 />
                                 <h3 className="text-xl font-semibold text-center mt-4">{client.nome}</h3>
-
-                                {/* Botões de Ação */}
-                                <div className="flex justify-center items-center mt-4 space-x-4">
-                                    <button
-                                        className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
-                                        onClick={() => setEditingClient(client)}
-                                    >
-                                        <AiOutlineEdit size={20} />
-                                    </button>
-                                    <button
-                                        className="bg-red-600 text-white p-3 rounded-lg hover:bg-red-700"
-                                        onClick={() => deleteClient(client._id, client.nome)}
-                                    >
-                                        <AiOutlineDelete size={20} />
-                                    </button>
-                                </div>
                             </Link>
+                            {/* Botões de Ação */}
+                            <div className="flex justify-center items-center mt-4 space-x-4">
+                                <button
+                                    className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
+                                    onClick={() => setEditingClient(client)}
+                                >
+                                    <AiOutlineEdit size={20} />
+                                </button>
+                                <button
+                                    className="bg-red-600 text-white p-3 rounded-lg hover:bg-red-700"
+                                    onClick={() => deleteClient(client._id, client.nome)}
+                                >
+                                    <AiOutlineDelete size={20} />
+                                </button>
+                            </div>
+
                         </div>
                     ))
                 ) : (
