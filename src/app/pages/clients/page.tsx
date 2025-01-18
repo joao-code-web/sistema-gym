@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 
+import padrao from "../../../../public/padrão/PADRAO.png"
+
 interface ClientTypes {
     _id: string;
     nome: string;
@@ -63,14 +65,24 @@ export default function PageClient() {
     const handleAlunoFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!nomeAluno || !fotoAluno) {
+        if (!nomeAluno) {
             alert("Preencha todos os campos!");
             return;
         }
 
         const formData = new FormData();
         formData.append("nome", nomeAluno);
-        formData.append("image", fotoAluno);
+
+        // Verificar se uma foto foi enviada. Caso contrário, usar a imagem padrão.
+        if (fotoAluno) {
+            formData.append("image", fotoAluno);
+        } else {
+            // Carregar a imagem padrão
+            const response = await fetch(padrao.src);
+            const blob = await response.blob();
+            const defaultFile = new File([blob], "padrão.png", { type: blob.type });
+            formData.append("image", defaultFile);
+        }
 
         try {
             await axios.post("/api/Client", formData, {
@@ -83,7 +95,6 @@ export default function PageClient() {
             setNomeAluno("");
             setFotoAluno(null);
             setFormAlunoVisible(false);
-            getClients();
         } catch (error) {
             console.error("Erro ao cadastrar aluno:", error);
             alert("Erro ao cadastrar aluno.");
