@@ -7,13 +7,15 @@ import { FaArrowDown, FaArrowUp, FaMoneyBillWave } from "react-icons/fa";
 import padrao from "../../public/padrão/PADRAO.png"
 
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale"; // Para suporte ao português (Brasil)
+import { ptBR } from "date-fns/locale";
+import { HiMiniBellAlert } from "react-icons/hi2";
 
 
 interface MesesTypes {
   _id: string;
   data: Date;
 }
+
 
 
 interface PagamentoTypes {
@@ -24,14 +26,14 @@ interface PagamentoTypes {
 }
 
 export default function Home() {
-  // Estados
+
   const [meses, setMeses] = useState<MesesTypes[]>([]);
   const [pagamentosPorMes, setPagamentosPorMes] = useState<Record<string, PagamentoTypes[]>>({});
   const [isFormMesVisible, setFormMesVisible] = useState(false);
   const [isFormAlunoVisible, setFormAlunoVisible] = useState(false);
+  const [isUsesVerci, setIsUsesVerci] = useState(false);
   const [dataInput, setDataInput] = useState("");
 
-  // Estados para o formulário de aluno
   const [nomeAluno, setNomeAluno] = useState("");
   const [fotoAluno, setFotoAluno] = useState<File | null>(null);
 
@@ -39,8 +41,6 @@ export default function Home() {
   const [totalSaidas, setTotalSaidas] = useState(0);
   const [total, setTotal] = useState(0);
 
-
-  // Função para buscar meses
   const getMeses = async () => {
     try {
       const response = await axios.get("/api/Mes");
@@ -50,13 +50,24 @@ export default function Home() {
     }
   };
 
-
+  // const getUsuarios = async () => {
+  //   try {
+  //     const response = await axios.get("/api/Client");
+  //     setClients(response.data);
+  //   } catch (error) {
+  //     console.error("Erro ao buscar meses:", error);
+  //   }
+  // };
 
   // useEffect para buscar meses
   useEffect(() => {
     getMeses();
+    // getUsuarios();
 
   }, []);
+
+
+
 
   const getPagamentosPorMes = useCallback(async () => {
     try {
@@ -101,7 +112,7 @@ export default function Home() {
     } catch (error) {
       console.error("Erro ao buscar pagamentos:", error);
     }
-  }, [meses]); // Dependência: 'meses'
+  }, [meses]);
 
   useEffect(() => {
     if (meses.length > 0) {
@@ -167,6 +178,47 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">
         CONTROLE DE CLIENTES E FINANCEIRO
       </h1>
+
+      <div className="absolute left-5 top-6 flex flex-col items-start">
+        {/* Botão de notificação */}
+        <div
+          className="bg-white w-14 h-14 shadow-md rounded-full p-3 flex items-center justify-center cursor-pointer transition-transform duration-300 hover:scale-110"
+          onClick={() => {
+            setIsUsesVerci(!isUsesVerci);
+            if (isUsesVerci) setIsUsesVerci(false);
+          }}
+        >
+          <HiMiniBellAlert size={30} className="text-blue-500" />
+        </div>
+
+        {/* Painel de notificações */}
+        {isUsesVerci && (
+          <div className="absolute left-0 top-20 bg-white shadow-2xl rounded-2xl w-96 border border-gray-300 p-6 transition-all duration-300 ease-in-out z-50">
+            {/* Título */}
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              📅 Próximos Vencimentos
+            </h3>
+
+            {/* Lista de notificações */}
+            <ul className="space-y-3">
+              <li className="flex items-center gap-3 p-4 bg-blue-50 text-blue-900 rounded-lg shadow">
+                <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                  🗓️
+                </div>
+                <div>
+                  <p className="text-sm font-medium">GISELE - VENCIMENTO</p>
+                  <p className="text-xs text-gray-500">PG: 15/01/2025</p>
+                  <p className="text-xs text-gray-500">VC: 15/02/2025</p>
+                </div>
+              </li>
+
+            </ul>
+
+
+          </div>
+        )}
+      </div>
+
 
       <div className="flex flex-col as w-1/2 m-auto items-center gap-4 mb-6">
         {/* Linha superior com Entradas e Saídas */}
@@ -287,7 +339,7 @@ export default function Home() {
         </form>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 -z-50">
         {meses.map((mes) => (
           <Link href={`/pages/${mes._id}`} key={mes._id}>
             <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105">

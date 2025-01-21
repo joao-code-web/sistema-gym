@@ -88,15 +88,30 @@ export default function PageClient({ id }: { id: string }) {
     const editarPagamentos = async (idPagamento: string, idClient: string) => {
         try {
             // Solicitar o novo valor e a nova data ao usuário
-            const novoValor = window.prompt("Digite o novo valor do pagamento:");
-            const novaData = window.prompt("Digite a nova data (02/02/2020):");
+            const novoValor = window.prompt("Digite o novo valor do pagamento:", "50");
+
+            // Criar um input de data para o usuário escolher a data
+            const novaData = window.prompt("Digite a nova data do pagamento (formato: YYYY-MM-DD):", "2025-01-21");
+
+            // Verificar se a data está no formato correto
+            if (!novaData || !/^\d{4}-\d{2}-\d{2}$/.test(novaData)) {
+                alert("Por favor, insira uma data válida no formato YYYY-MM-DD.");
+                return;
+            }
+
+            // Manipular a data para evitar problemas de fuso horário
+            const [year, month, day] = novaData.split('-');
+            const data = new Date(Number(year), Number(month) - 1, Number(day));
+
+            // Ajustar a hora para evitar deslocamento de fuso horário
+            data.setHours(0, 0, 0, 0); // Garantir que a hora seja 00:00:00
 
             // Fazer a requisição PUT para a API
             await axios.put(`/api/Pagamentos`, {
                 idPagamento,
                 idClient,
                 valor: Number(novoValor),
-                data: novaData,
+                data: data.toISOString(), // Enviar a data como string no formato ISO
             });
 
             alert("Pagamento editado com sucesso!");
