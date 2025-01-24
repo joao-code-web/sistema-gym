@@ -25,10 +25,20 @@ interface PagamentoTypes {
   data: string;
 }
 
+interface DespesasTypes {
+  _id: string;
+  tipoGasto: string;
+  valor: number;
+  descricao: string;
+  dataCriacao: Date;
+}
+
 export default function Home() {
 
   const [meses, setMeses] = useState<MesesTypes[]>([]);
   const [pagamentosPorMes, setPagamentosPorMes] = useState<Record<string, PagamentoTypes[]>>({});
+  const [despesasPorMes, setDespesasPorMes] = useState<Record<string, DespesasTypes[]>>({});
+
   const [isFormMesVisible, setFormMesVisible] = useState(false);
   const [isFormAlunoVisible, setFormAlunoVisible] = useState(false);
   const [isUsesVerci, setIsUsesVerci] = useState(false);
@@ -50,24 +60,11 @@ export default function Home() {
     }
   };
 
-  // const getUsuarios = async () => {
-  //   try {
-  //     const response = await axios.get("/api/Client");
-  //     setClients(response.data);
-  //   } catch (error) {
-  //     console.error("Erro ao buscar meses:", error);
-  //   }
-  // };
-
-  // useEffect para buscar meses
   useEffect(() => {
     getMeses();
-    // getUsuarios();
+
 
   }, []);
-
-
-
 
   const getPagamentosPorMes = useCallback(async () => {
     try {
@@ -88,39 +85,80 @@ export default function Home() {
 
       // Calcular os totais de entrada e saída
       let totalEntradasTemp = 0;
-      let totalSaidasTemp = 0;
-      let total = 0;
+   
 
       Object.values(pagamentosMap).forEach((pagamentos) => {
         if (Array.isArray(pagamentos)) {
           pagamentos.forEach((pagamento) => {
-            if (pagamento && typeof pagamento.valor === 'number') {
+            if (pagamento && typeof pagamento.valor === "number") {
               if (pagamento.valor > 0) {
                 totalEntradasTemp += pagamento.valor;
-              } else {
-                totalSaidasTemp += pagamento.valor;
-              }
+              } 
             }
-            total = totalEntradasTemp + totalSaidasTemp;
           });
         }
       });
 
       setTotalEntradas(totalEntradasTemp);
-      setTotalSaidas(totalSaidasTemp);
-      setTotal(total);
+  
     } catch (error) {
       console.error("Erro ao buscar pagamentos:", error);
     }
   }, [meses]);
 
+  const getDespesasPorMes = useCallback(async () => {
+    try {
+      const despesasPromises = meses.map(async (mes) => {
+        const response = await axios.get(`/api/Despesas`, {
+          params: { idMes: mes._id },
+        });
+        return { mesId: mes._id, despesas: response.data };
+      });
+
+      const resultados = await Promise.all(despesasPromises);
+      const despesasMap = resultados.reduce((acc, { mesId, despesas }) => {
+        acc[mesId] = despesas;
+        return acc;
+      }, {} as Record<string, DespesasTypes[]>);
+
+      setDespesasPorMes(despesasMap);
+
+      let totalTemp = 0;
+
+      Object.values(despesasMap).forEach((despesas) => {
+        if (Array.isArray(despesas)) {
+          despesas.forEach((despesa) => {
+            if (despesa && typeof despesa.valor === "number") {
+              totalTemp += despesa.valor;
+            }
+          });
+        }
+      });
+
+      setTotalSaidas(totalTemp);
+    } catch (error) {
+      console.error("Erro ao buscar despesas:", error);
+    }
+  }, [meses]);
+
+  const calcularSaldo = useCallback(() => {
+    const saldo = totalEntradas - totalSaidas; // Subtração de entradas pelas saídas
+
+    setTotal(saldo); // Atualiza o estado com o saldo
+  }, [totalEntradas, totalSaidas]);
+
   useEffect(() => {
     if (meses.length > 0) {
       getPagamentosPorMes();
+      getDespesasPorMes();
     }
-  }, [meses, getPagamentosPorMes]); // Inclui 'getPagamentosPorMes' como dependência
+  }, [meses, getPagamentosPorMes, getDespesasPorMes]);
 
-  // Submissão do formulário para adicionar mês
+  useEffect(() => {
+    calcularSaldo(); // Chama a função para calcular o saldo
+  }, [calcularSaldo]);
+
+
   const handleMesFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -133,7 +171,7 @@ export default function Home() {
     }
   };
 
-  // Submissão do formulário para cadastrar aluno
+
   const handleAlunoFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -231,11 +269,14 @@ export default function Home() {
           </div>
 
           {/* Caixa de Saídas */}
-          <div className="bg-red-100   text-red-700 rounded-lg shadow-md p-4 w-full text-center flex flex-col items-center">
+          <div className="bg-red-100 text-red-700 rounded-lg shadow-md p-4 w-full text-center flex flex-col items-center">
             <FaArrowDown className="text-3xl mb-2" />
             <h2 className="text-lg font-bold">Saiu</h2>
-            <p className="text-xl font-semibold">R$ {Math.abs(totalSaidas).toFixed(2)}</p>
+            <p className="text-xl font-semibold">
+              {totalSaidas !== undefined ? `R$ ${Math.abs(totalSaidas).toFixed(2)}` : "Carregando..."}
+            </p>
           </div>
+
         </div>
 
         {/* Total embaixo */}
@@ -354,7 +395,7 @@ export default function Home() {
                     ENTROU:{" "}
                     <span className={Array.isArray(pagamentosPorMes[mes._id]) ? "font-semibold" : "text-gray-500"}>
                       {Array.isArray(pagamentosPorMes[mes._id]) ?
-                        pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor > 0 ? acc + Number(elemente.valor) : acc, 0).toString() :
+                        pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor > 0 ? acc + Number(elemente.valor) : acc, 0).toFixed(2) :
                         'Nenhum pagamento registrado'
                       }
                     </span>
@@ -363,30 +404,28 @@ export default function Home() {
 
                 <p className="text-lg font-medium text-gray-800 mt-2">
                   <span className="text-red-600">
-                    SAIU:{" "}
-                    <span className={Array.isArray(pagamentosPorMes[mes._id]) ? "font-semibold" : "text-gray-500"}>
-                      {Array.isArray(pagamentosPorMes[mes._id]) ?
-                        pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor < 0 ? acc + Number(elemente.valor) : acc, 0).toString() :
-                        'Nenhum pagamento registrado'
-                      }
+                    DESPESAS:{" "}
+                    <span className={Array.isArray(despesasPorMes[mes._id]) ? "font-semibold" : "text-gray-500"}>
+                      {Array.isArray(despesasPorMes[mes._id]) ? (
+                        despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor > 0 ? acc + Number(elemente.valor) : acc, 0).toFixed(2)
+                      ) : 'Nenhuma despesa registrada'}
                     </span>
+
                   </span>
                 </p>
 
+
+
                 <p className="text-lg font-medium text-gray-800 mt-2">
-                  <span className={`font-semibold ${Array.isArray(pagamentosPorMes[mes._id]) &&
-                    pagamentosPorMes[mes._id]?.reduce((acc, elemente) =>
-                      elemente.valor ? acc + Number(elemente.valor) : acc, 0) > 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                    }`}>
-                    CAIXA: {
-                      Array.isArray(pagamentosPorMes[mes._id]) ?
-                        pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0).toString() :
-                        'Nenhum pagamento registrado'
-                    }
+                  <span className={`font-semibold ${Array.isArray(pagamentosPorMes[mes._id]) && pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                    (Array.isArray(despesasPorMes[mes._id]) ? despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) : 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    CAIXA: {Array.isArray(pagamentosPorMes[mes._id]) && Array.isArray(despesasPorMes[mes._id]) ?
+                      (pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                        despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0)).toFixed(2)
+                      : 'Dados insuficientes'}
                   </span>
                 </p>
+
               </div>
             </div>
           </Link>
