@@ -50,6 +50,14 @@ export default function PageClient({ id }: { id: string }) {
     const [totalSaidas, setTotalSaidas] = useState(0);
     const [total, setTotal] = useState(0);
 
+    const [expandedTables, setExpandedTables] = useState<{
+        pagamentos: boolean;
+        despesas: boolean;
+    }>({
+        pagamentos: false,
+        despesas: false,
+    });
+
     const mesesNomes = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -300,11 +308,9 @@ export default function PageClient({ id }: { id: string }) {
             tipoGasto,
             valor,
             descricao,
-            data: new Date().toISOString(), // Data atual
+            data: new Date().toISOString(),
 
         };
-
-
 
         try {
             const response = await axios.post(`/api/Despesas?idMes=${id}`, novaDespesa);
@@ -324,7 +330,13 @@ export default function PageClient({ id }: { id: string }) {
     };
 
 
-
+    // Garantir que tableName seja limitado às chaves de expandedTables
+    const toggleTable = (tableName: keyof typeof expandedTables) => {
+        setExpandedTables((prevState) => ({
+            ...prevState,
+            [tableName]: !prevState[tableName],
+        }));
+    };
 
     return (
         <div className="p-6 flex flex-col items-center justify-center">
@@ -551,9 +563,17 @@ export default function PageClient({ id }: { id: string }) {
 
             )}
 
-
             <div className="mt-8 w-full bg-white shadow-lg rounded-lg overflow-hidden">
-                {pagamentos && pagamentos.length > 0 ? (
+                <div
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex justify-between items-center cursor-pointer"
+                    onClick={() => toggleTable("pagamentos")}
+                >
+                    <h2 className="text-xl font-bold">Pagamentos</h2>
+                    <button className="text-xl font-bold">
+                        {expandedTables.pagamentos ? "−" : "+"}
+                    </button>
+                </div>
+                {expandedTables.pagamentos && pagamentos && pagamentos.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="min-w-full table-auto border-collapse">
                             <thead className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
@@ -574,7 +594,7 @@ export default function PageClient({ id }: { id: string }) {
                             </thead>
                             <tbody>
                                 {pagamentos.map((pagamento, index) => {
-                                    const client = clients.find(c => c._id === pagamento.client);
+                                    const client = clients.find((c) => c._id === pagamento.client);
                                     const isEven = index % 2 === 0;
                                     return (
                                         <tr
@@ -585,14 +605,22 @@ export default function PageClient({ id }: { id: string }) {
                                             <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
                                                 <div className="flex items-center gap-3">
                                                     <Image
-                                                        src={client ? client.image : '/default-avatar.png'}
-                                                        alt={client ? client.nome : 'Imagem não disponível'}
+                                                        src={
+                                                            client ? client.image : "/default-avatar.png"
+                                                        }
+                                                        alt={
+                                                            client
+                                                                ? client.nome
+                                                                : "Imagem não disponível"
+                                                        }
                                                         className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
                                                         width={300}
                                                         height={200}
                                                     />
                                                     <span className="text-lg font-semibold">
-                                                        {client ? client.nome : 'Cliente não encontrado'}
+                                                        {client
+                                                            ? client.nome
+                                                            : "Cliente não encontrado"}
                                                     </span>
                                                 </div>
                                             </td>
@@ -605,14 +633,24 @@ export default function PageClient({ id }: { id: string }) {
                                             <td className="px-6 py-4 text-center border-b border-gray-300">
                                                 <div className="flex justify-center gap-4">
                                                     <button
-                                                        onClick={() => deletePagamentos(pagamento._id, pagamento.client)}
+                                                        onClick={() =>
+                                                            deletePagamentos(
+                                                                pagamento._id,
+                                                                pagamento.client
+                                                            )
+                                                        }
                                                         className="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-all transform hover:scale-105"
                                                     >
                                                         Deletar
                                                     </button>
 
                                                     <button
-                                                        onClick={() => editarPagamentos(pagamento._id, pagamento.client)}
+                                                        onClick={() =>
+                                                            editarPagamentos(
+                                                                pagamento._id,
+                                                                pagamento.client
+                                                            )
+                                                        }
                                                         className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition-all transform hover:scale-105"
                                                     >
                                                         Editar
@@ -626,15 +664,26 @@ export default function PageClient({ id }: { id: string }) {
                         </table>
                     </div>
                 ) : (
-                    <div className="text-center py-8 text-lg text-gray-600">
-                        Nenhum pagamento registrado.
-                    </div>
+                    !expandedTables.pagamentos && (
+                        <div className="text-center py-8 text-lg text-gray-600">
+                            Expandir
+                        </div>
+                    )
                 )}
             </div>
 
-
+            {/* Despesas Table */}
             <div className="mt-8 w-full bg-white shadow-lg rounded-lg overflow-hidden">
-                {despesas && despesas.length > 0 ? (
+                <div
+                    className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 flex justify-between items-center cursor-pointer"
+                    onClick={() => toggleTable("despesas")}
+                >
+                    <h2 className="text-xl font-bold">Despesas</h2>
+                    <button className="text-xl font-bold">
+                        {expandedTables.despesas ? "−" : "+"}
+                    </button>
+                </div>
+                {expandedTables.despesas && despesas && despesas.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="min-w-full table-auto border-collapse">
                             <thead className="bg-gradient-to-r from-red-500 to-red-600 text-white">
@@ -657,54 +706,57 @@ export default function PageClient({ id }: { id: string }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {despesas.map((despesa) => {
+                                {despesas.map((despesa) => (
+                                    <tr
+                                        key={despesa._id}
+                                        className={`hover:bg-blue-50 transition-all`}
+                                    >
+                                        <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
+                                            <span className="text-lg font-semibold">
+                                                {despesa
+                                                    ? despesa.descricao
+                                                    : "Cliente não encontrado"}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
+                                            {despesa.tipoGasto}
+                                        </td>
+                                        <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
+                                            R$ -{Number(despesa.valor).toFixed(2)}
+                                        </td>
+                                        <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
+                                            {new Date(
+                                                despesa.dataCriacao
+                                            ).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-center border-b border-gray-300">
+                                            <div className="flex justify-center gap-4">
+                                                <button
+                                                    onClick={() => deleteDespesas(despesa._id)}
+                                                    className="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-all transform hover:scale-105"
+                                                >
+                                                    Deletar
+                                                </button>
 
-                                    return (
-                                        <tr
-                                            key={despesa._id}
-                                            className={` hover:bg-blue-50 transition-all`}
-                                        >
-                                            <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
-                                                <span className="text-lg font-semibold">
-                                                    {despesa ? despesa.descricao : 'Cliente não encontrado'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
-                                                {despesa.tipoGasto}
-                                            </td>
-                                            <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
-                                                R$ -{Number(despesa.valor).toFixed(2)}
-                                            </td>
-                                            <td className="px-6 py-4 text-lg font-medium text-gray-800 border-b border-gray-300">
-                                                {new Date(despesa.dataCriacao).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-6 py-4 text-center border-b border-gray-300">
-                                                <div className="flex justify-center gap-4">
-                                                    <button
-                                                        onClick={() => deleteDespesas(despesa._id)}
-                                                        className="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-all transform hover:scale-105"
-                                                    >
-                                                        Deletar
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() => editarDespesas(despesa._id)}
-                                                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition-all transform hover:scale-105"
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                                <button
+                                                    onClick={() => editarDespesas(despesa._id)}
+                                                    className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition-all transform hover:scale-105"
+                                                >
+                                                    Editar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 ) : (
-                    <div className="text-center py-8 text-lg text-gray-600">
-                        Nenhum pagamento registrado.
-                    </div>
+                    !expandedTables.despesas && (
+                        <div className="text-center py-8 text-lg text-gray-600">
+                            Expandir
+                        </div>
+                    ) 
                 )}
             </div>
 
