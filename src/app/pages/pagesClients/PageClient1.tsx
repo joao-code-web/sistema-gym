@@ -41,6 +41,7 @@ export default function PageClient({ id }: { id: string }) {
     const [pagamentos, setPagamentos] = useState<PagamentoTypes[]>([]);
     const [isFormAlunoVisible, setIsFormAlunoVisible] = useState(false);
     const [isPagamentoAlunoVisible, setIsPagamentoAlunoVisible] = useState(false);
+
     const [tipoGasto, setTipoGasto] = useState("");
     const [valorPagamento, setValorPagamento] = useState(50);
     const [descricao, setDescricao] = useState("");
@@ -62,8 +63,6 @@ export default function PageClient({ id }: { id: string }) {
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
-
-
 
     const getMesId = async (id: string) => {
         try {
@@ -306,11 +305,13 @@ export default function PageClient({ id }: { id: string }) {
 
         const novaDespesa = {
             tipoGasto,
-            valor,
+            valor: valorPagamento,
             descricao,
             data: new Date().toISOString(),
 
         };
+
+        console.log(novaDespesa)
 
         try {
             const response = await axios.post(`/api/Despesas?idMes=${id}`, novaDespesa);
@@ -329,8 +330,6 @@ export default function PageClient({ id }: { id: string }) {
         }
     };
 
-
-    // Garantir que tableName seja limitado às chaves de expandedTables
     const toggleTable = (tableName: keyof typeof expandedTables) => {
         setExpandedTables((prevState) => ({
             ...prevState,
@@ -557,7 +556,7 @@ export default function PageClient({ id }: { id: string }) {
                         type="submit"
                         className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-all"
                     >
-                        Registrar Pagamento
+                        Registrar Despesa
                     </button>
                 </form>
 
@@ -756,7 +755,7 @@ export default function PageClient({ id }: { id: string }) {
                         <div className="text-center py-8 text-lg text-gray-600">
                             Expandir
                         </div>
-                    ) 
+                    )
                 )}
             </div>
 
