@@ -8,6 +8,7 @@ type Despesa = {
   tipoGasto: string;
   valor: number;
   descricao: string;
+  dataCriacao: Date;
 };
 
 interface TypesMessage {
@@ -116,27 +117,37 @@ export const DELETE = async (req: Request) => {
 export const PUT = async (req: Request) => {
   try {
     const body = await req.json();
-    const { idDespesa, tipoGasto, valor, descricao } = body;
+    const { searchParams } = new URL(req.url);
+    const despesaId = searchParams.get("idDespesa");
 
-    if (!idDespesa || !Types.ObjectId.isValid(idDespesa)) {
-      return status({ message: "ID da despesa inválido", status: 400 });
+    if (!despesaId || !Types.ObjectId.isValid(despesaId)) {
+      return NextResponse.json({ message: "ID da despesa inválido" }, { status: 400 });
     }
 
     await connect();
 
-    const despesa = await DespesasModel.findById(idDespesa);
+    const despesa = await DespesasModel.findById(despesaId);
     if (!despesa) {
-      return status({ message: "Despesa não encontrada", status: 404 });
+      return NextResponse.json({ message: "Despesa não encontrada" }, { status: 404 });
     }
 
-    despesa.tipoGasto = tipoGasto || despesa.tipoGasto;
-    despesa.valor = valor || despesa.valor;
-    despesa.descricao = descricao || despesa.descricao;
+    // Atualizar apenas os campos fornecidos
+    if (body.tipoGasto) despesa.tipoGasto = body.tipoGasto;
+    if (body.valor !== undefined && !isNaN(parseFloat(body.valor))) {
+      despesa.valor = parseFloat(body.valor);
+    }
+    if (body.descricao) despesa.descricao = body.descricao;
+    if (body.data) despesa.dataCriacao = body.data; // Certifique-se do nome correto do campo
 
     await despesa.save();
 
-    return status({ message: "Despesa atualizada com sucesso", status: 200 });
-  } catch {
-    return status({ message: "Erro ao atualizar a despesa", status: 500 });
+    return NextResponse.json({
+      message: "Despesa atualizada com sucesso",
+      despesa
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("Erro ao atualizar a despesa:", error);
+    return NextResponse.json({ message: "Erro ao atualizar a despesa" }, { status: 500 });
   }
 };

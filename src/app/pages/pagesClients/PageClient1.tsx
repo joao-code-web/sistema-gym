@@ -250,8 +250,7 @@ export default function PageClient({ id }: { id: string }) {
             data.setHours(0, 0, 0, 0);
 
             // Fazer a requisição PUT para a API
-            await axios.put(`/api/Despesas`, {
-                idDespesa,
+            await axios.put(`/api/Despesas?idDespesa=${idDespesa}`, {
                 tipoGasto: novoTipoGasto, // Usar o valor diretamente
                 valor: novoValor,
                 descricao: novaDescricao,
