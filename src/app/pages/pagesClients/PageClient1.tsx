@@ -96,9 +96,8 @@ export default function PageClient({ id }: { id: string }) {
 
     const getDespesas = async (id: string) => {
         try {
-            const response = await axios.get(`/api/Despesas?id=${id}`);
+            const response = await axios.get(`/api/Despesas?idMes=${id}`);
             setDespesas(response.data);
-
         } catch (error) {
             console.log(error);
         }
@@ -310,8 +309,6 @@ export default function PageClient({ id }: { id: string }) {
             data: new Date().toISOString(),
 
         };
-
-        console.log(novaDespesa)
 
         try {
             const response = await axios.post(`/api/Despesas?idMes=${id}`, novaDespesa);
