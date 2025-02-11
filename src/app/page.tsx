@@ -85,7 +85,7 @@ export default function Home() {
 
       // Calcular os totais de entrada e saída
       let totalEntradasTemp = 0;
-   
+
 
       Object.values(pagamentosMap).forEach((pagamentos) => {
         if (Array.isArray(pagamentos)) {
@@ -93,14 +93,14 @@ export default function Home() {
             if (pagamento && typeof pagamento.valor === "number") {
               if (pagamento.valor > 0) {
                 totalEntradasTemp += pagamento.valor;
-              } 
+              }
             }
           });
         }
       });
 
       setTotalEntradas(totalEntradasTemp);
-  
+
     } catch (error) {
       console.error("Erro ao buscar pagamentos:", error);
     }
@@ -425,6 +425,38 @@ export default function Home() {
                       : 'Dados insuficientes'}
                   </span>
                 </p>
+
+                <p className="text-lg font-medium text-gray-800 mt-2">
+                  <span className={`font-semibold ${Array.isArray(pagamentosPorMes[mes._id]) && pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                    (Array.isArray(despesasPorMes[mes._id]) ? despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) : 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    Capital de Giro (45%): {Array.isArray(pagamentosPorMes[mes._id]) && Array.isArray(despesasPorMes[mes._id]) ?
+                      ((pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                        despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0)) * 0.45).toFixed(2)
+                      : 'Dados insuficientes'}
+                  </span>
+                </p>
+
+                <p className="text-lg font-medium text-gray-800 mt-2">
+                  <span className={`font-semibold ${Array.isArray(pagamentosPorMes[mes._id]) && pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                    (Array.isArray(despesasPorMes[mes._id]) ? despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) : 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    Reserva de Emergência (30%): {Array.isArray(pagamentosPorMes[mes._id]) && Array.isArray(despesasPorMes[mes._id]) ?
+                      ((pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                        despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0)) * 0.30).toFixed(2)
+                      : 'Dados insuficientes'}
+                  </span>
+                </p>
+
+                <p className="text-lg font-medium text-gray-800 mt-2">
+                  <span className={`font-semibold ${Array.isArray(pagamentosPorMes[mes._id]) && pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                    (Array.isArray(despesasPorMes[mes._id]) ? despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) : 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    Reserva para Expansão (25%): {Array.isArray(pagamentosPorMes[mes._id]) && Array.isArray(despesasPorMes[mes._id]) ?
+                      ((pagamentosPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0) -
+                        despesasPorMes[mes._id]?.reduce((acc, elemente) => elemente.valor ? acc + Number(elemente.valor) : acc, 0)) * 0.25).toFixed(2)
+                      : 'Dados insuficientes'}
+                  </span>
+                </p>
+
+
 
               </div>
             </div>
