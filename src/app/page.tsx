@@ -4,19 +4,20 @@ import axios from "axios";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp, FaMoneyBillWave } from "react-icons/fa";
+import { MdCalendarMonth } from "react-icons/md";
+import { IoMdPersonAdd } from "react-icons/io";
+import { IoPeopleSharp } from "react-icons/io5";
+import { FaPix } from "react-icons/fa6";
 import padrao from "../../public/padrão/PADRAO.png"
 
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { HiMiniBellAlert } from "react-icons/hi2";
 
-
 interface MesesTypes {
   _id: string;
   data: Date;
 }
-
-
 
 interface PagamentoTypes {
   _id: string;
@@ -293,35 +294,50 @@ export default function Home() {
 
 
       <div className="flex flex-col items-center my-8">
-        <div className="flex ab gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <button
-            className="flex items-center justify-center px-6 py-3 text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all"
+            className="flex items-center justify-center gap-2 px-6 py-3 text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all w-full sm:w-auto"
             onClick={() => {
               setFormMesVisible(!isFormMesVisible);
               if (isFormAlunoVisible) setFormAlunoVisible(false);
             }}
           >
-            Adicionar Mês
+            <MdCalendarMonth className="text-xl" />
+            <span>Adicionar Mês</span>
           </button>
 
           <button
-            className="flex items-center justify-center px-6 py-3 text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all"
+            className="flex items-center justify-center gap-2 px-6 py-3 text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all w-full sm:w-auto"
             onClick={() => {
               setFormAlunoVisible(!isFormAlunoVisible);
               if (isFormMesVisible) setFormMesVisible(false);
             }}
           >
-            Adicionar Aluno
+            <IoMdPersonAdd className="text-xl" />
+            <span>Adicionar Aluno</span>
           </button>
 
           <Link href={`/pages/clients/`}>
             <button
-              className="flex items-center justify-center px-6 py-3 text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all">
-              Ver Alunos
+              className="flex items-center justify-center gap-2 px-6 py-3 text-blue-600 bg-white border border-blue-600 rounded-full shadow-lg hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all w-full sm:w-auto"
+            >
+              <IoPeopleSharp className="text-xl" />
+              <span>Ver Alunos</span>
+            </button>
+          </Link>
+
+          <Link href={`/pages/pagesDaysClients/`}>
+            <button
+              className="flex items-center justify-center gap-2 px-6 py-3 text-blue-600 bg-white border border-blue-600 rounded-full shadow-lg hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all w-full sm:w-auto"
+            >
+              <FaPix className="text-xl" />
+              <span>Status dos Alunos</span>
             </button>
           </Link>
         </div>
       </div>
+
+
 
       {isFormAlunoVisible && (
         <div className="p-6 flex flex-col items-center justify-center">
