@@ -11,8 +11,9 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx", // ✅ Corrigido para suportar JSX moderno com React 17+
     "incremental": true,
+    "types": ["react", "react-dom"], // ✅ Inclui os tipos necessários para JSX funcionar
     "plugins": [
       {
         "name": "next"
