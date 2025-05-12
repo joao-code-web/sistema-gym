@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, JSX } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import Image from "next/image";
 
 interface ClientTypes {
   _id: string;
@@ -54,7 +55,7 @@ const Page = () => {
     }
   };
 
-  const fetchPagamentos = async (clientes: ClientTypes[]) => {
+  const fetchPagamentos = useCallback(async (clientes: ClientTypes[]) => {
     const resultado: Record<string, Pagamento | null> = {};
     const vencendo: string[] = [];
     const atrasados: string[] = [];
@@ -90,7 +91,7 @@ const Page = () => {
     }
 
     setPagamentos(resultado);
-  };
+  }, []);
 
   useEffect(() => {
     getClients();
@@ -102,7 +103,7 @@ const Page = () => {
       const intervalId = setInterval(() => fetchPagamentos(clients), 30 * 60 * 1000);
       return () => clearInterval(intervalId);
     }
-  }, [clients]);
+  }, [clients, fetchPagamentos]);
 
   const obterStatusCliente = (pagamento: Pagamento | null) => {
     if (!pagamento) return null;
@@ -160,11 +161,10 @@ const Page = () => {
           ].map((btn) => (
             <button
               key={btn.value}
-              className={`px-3 py-1 rounded-full border text-sm transition ${
-                filtroStatus === btn.value
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-blue-600 border-blue-300"
-              }`}
+              className={`px-3 py-1 rounded-full border text-sm transition ${filtroStatus === btn.value
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border-blue-300"
+                }`}
               onClick={() => {
                 setFiltroStatus(btn.value as StatusFiltro);
                 setPaginaAtual(1);
@@ -192,12 +192,12 @@ const Page = () => {
           <tbody className="divide-y divide-gray-100">
             {clientesPaginados.map((client, index) => {
               const pagamento = pagamentos[client._id];
-              const status = obterStatusCliente(pagamento);
               const numero = (paginaAtual - 1) * itensPorPagina + index + 1;
 
               let statusLabel: JSX.Element | null = null;
               let diasRestantes: number | null = null;
               let diasLabel: JSX.Element | null = null;
+
 
               if (pagamento) {
                 const ultimaData = new Date(pagamento.data);
@@ -227,20 +227,20 @@ const Page = () => {
                 <tr key={client._id} className="hover:bg-blue-50">
                   <td className="px-4 py-2 text-center">{numero}</td>
                   <td className="px-4 py-2">
-                    <img
+                    <Image
                       src={client.image}
                       alt={client.nome}
-                      className="h-10 w-10 rounded-full object-cover border border-blue-200"
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover border border-blue-200"
                     />
                   </td>
-                  <td className="px-4 py-2 text-gray-800">{client.nome}</td>
-                  <td className="px-4 py-2 text-gray-700">
-                    {pagamento
-                      ? new Date(pagamento.data).toLocaleDateString("pt-BR")
-                      : <span className="text-gray-400 italic">Sem registro</span>}
+                  <td className="px-4 py-2">{client.nome}</td>
+                  <td className="px-4 py-2">
+                    {pagamento ? new Date(pagamento.data).toLocaleDateString("pt-BR") : "Sem dados"}
                   </td>
-                  <td className="px-4 py-2">{statusLabel ?? <span className="text-gray-400 italic">Sem pagamento</span>}</td>
-                  <td className="px-4 py-2">{diasLabel ?? <span className="text-gray-400 italic">-</span>}</td>
+                  <td className="px-4 py-2">{statusLabel}</td>
+                  <td className="px-4 py-2">{diasLabel}</td>
                 </tr>
               );
             })}
@@ -249,35 +249,23 @@ const Page = () => {
       </div>
 
       {/* Paginação */}
-      {totalPaginas > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button
-            className="px-3 py-1 rounded border text-sm"
-            disabled={paginaAtual === 1}
-            onClick={() => setPaginaAtual((p) => p - 1)}
-          >
-            Anterior
-          </button>
-          {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => (
-            <button
-              key={num}
-              className={`px-3 py-1 rounded text-sm ${
-                paginaAtual === num ? "bg-blue-600 text-white" : "bg-white border text-blue-600"
-              }`}
-              onClick={() => setPaginaAtual(num)}
-            >
-              {num}
-            </button>
-          ))}
-          <button
-            className="px-3 py-1 rounded border text-sm"
-            disabled={paginaAtual === totalPaginas}
-            onClick={() => setPaginaAtual((p) => p + 1)}
-          >
-            Próxima
-          </button>
-        </div>
-      )}
+      <div className="flex justify-center items-center mt-4 gap-2">
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
+          disabled={paginaAtual === 1}
+        >
+          Anterior
+        </button>
+        <span className="px-2">{paginaAtual} / {totalPaginas}</span>
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))}
+          disabled={paginaAtual === totalPaginas}
+        >
+          Próximo
+        </button>
+      </div>
     </div>
   );
 };
